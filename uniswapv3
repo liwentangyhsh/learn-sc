@@ -1,0 +1,130 @@
+操作步骤说明：
+
+1. npm install
+
+2. npx hardhat test ./test/BitMath.spec.ts
+这里可能有错误提示，需要多执行几次，中间需要生成typechain
+
+3.添加部署实现
+3.1 npm install --save-dev hardhat-deploy hardhat-deploy-ethers
+3.2 修改 hardhat.config.ts
+import 'hardhat-typechain'
+import '@nomiclabs/hardhat-ethers'
+import '@nomiclabs/hardhat-waffle'
+import '@nomiclabs/hardhat-etherscan'
+import {HardhatUserConfig} from 'hardhat/types';
+import 'hardhat-deploy';
+import 'hardhat-deploy-ethers';
+
+const config: HardhatUserConfig = {
+  solidity: {
+    version: '0.7.6',
+  },
+  namedAccounts: {
+    deployer: 0,
+  },
+  networks: {
+    hardhat: {
+      allowUnlimitedContractSize: false,
+    },
+    testnet: {
+      url: 'https://http-testnet.hecochain.com',
+      accounts: [
+        'b10a4804f808ec3fa1626c2eaf364635684c60e33b9c26a42c2a654e42f3fedf',
+        'b17dc16398c57c31af5326696db12bbe1d60891581baf669798b44207860a312',
+      ],
+    },
+  }
+};
+export default config;
+
+3.3 创建 deploy文件夹
+001_deploy_factory.ts
+import { HardhatRuntimeEnvironment } from 'hardhat/types'
+import { DeployFunction } from 'hardhat-deploy/types'
+
+const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
+  const { deployments, getNamedAccounts } = hre
+  const { deploy } = deployments
+
+  const { deployer, tokenOwner } = await getNamedAccounts()
+
+  await deploy('SpeFactory', {
+    from: deployer,
+    args: [],
+    log: true,
+  })
+}
+export default func
+func.tags = ['SpeFactory']
+
+3.4 修改hardhat.config.ts
+
+import 'hardhat-typechain'
+import '@nomiclabs/hardhat-ethers'
+import '@nomiclabs/hardhat-waffle'
+import '@nomiclabs/hardhat-etherscan'
+import { HardhatUserConfig } from 'hardhat/types'
+import 'hardhat-deploy'
+import 'hardhat-deploy-ethers'
+
+export default {
+  networks: {
+    hardhat: {
+      allowUnlimitedContractSize: false,
+    },
+    mainnet: {
+      url: `https://http-mainnet.hecochain.com`,
+      accounts: [
+        'b10a4804f808ec3fa1626c2eaf364635684c60e33b9c26a42c2a654e42f3fedf',
+        'b17dc16398c57c31af5326696db12bbe1d60891581baf669798b44207860a312',
+      ],      
+    },
+    testnet: {
+      url: 'https://http-testnet.hecochain.com',
+      accounts: [
+        'b10a4804f808ec3fa1626c2eaf364635684c60e33b9c26a42c2a654e42f3fedf',
+        'b17dc16398c57c31af5326696db12bbe1d60891581baf669798b44207860a312',
+      ],
+    },
+  },
+  etherscan: {
+    // Your API key for Etherscan
+    // Obtain one at https://etherscan.io/
+    apiKey: process.env.ETHERSCAN_API_KEY,
+  },
+  solidity: {
+    version: '0.7.6',
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 200,
+      },
+      metadata: {
+        // do not include the metadata hash, since this is machine dependent
+        // and we want all generated code to be deterministic
+        // https://docs.soliditylang.org/en/v0.7.6/metadata.html
+        bytecodeHash: 'none',
+      },
+    },
+  },
+  namedAccounts: {
+    deployer: 0,
+    tokenOwner: 1,
+  },
+  paths: {
+    sources: 'contracts',
+    tests: 'test',
+    cache: 'cache',
+    artifacts: 'artifacts',
+  },
+}
+
+3.5 
+test
+npx hardhat deploy --network testnet
+main
+npx hardhat deploy --network mainnet
+bsc main
+
+
