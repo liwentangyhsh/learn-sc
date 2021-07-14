@@ -30,8 +30,8 @@ const config: HardhatUserConfig = {
     testnet: {
       url: 'https://http-testnet.hecochain.com',
       accounts: [
-        'b10a4804f808ec3fa1626c2eaf364635684c60e33b9c26a42c2a654e42f3fedf',
-        'b17dc16398c57c31af5326696db12bbe1d60891581baf669798b44207860a312',
+        'b10a4804f808ec3fa1626c2eaf364635684c60e3',
+        'b17dc16398c57c31af5326696db12bbe1d60891581b',
       ],
     },
   }
